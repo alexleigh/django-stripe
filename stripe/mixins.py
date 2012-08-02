@@ -1,7 +1,9 @@
+import logging
+
 import stripe
+from . import settings
 
-from zebra.conf import options
-
+log = logging.getLogger(__name__)
 
 def _get_attr_value(instance, attr, default=None):
     """
@@ -34,23 +36,21 @@ def _get_attr_value(instance, attr, default=None):
             value = value()
     return value
 
-
 class StripeMixin(object):
     """
     Provides a property `stripe` that returns an instance of the Stripe module.
 
     It optionally supports the ability to set `stripe.api_key` if your class
     has a `stripe_api_key` attribute (method or property), or if
-    settings has a `STRIPE_SECRET` attribute (method or property).
+    settings has a `STRIPE_SECRET_KEY` attribute (method or property).
     """
     def _get_stripe(self):
         if hasattr(self, 'stripe_api_key'):
             stripe.api_key = _get_attr_value(self, 'stripe_api_key')
-        elif hasattr(options, 'STRIPE_SECRET'):
-            stripe.api_key = _get_attr_value(options, 'STRIPE_SECRET')
+        elif hasattr(settings, 'STRIPE_SECRET_KEY'):
+            stripe.api_key = _get_attr_value(settings, 'STRIPE_SECRET_KEY')
         return stripe
     stripe = property(_get_stripe)
-
 
 class StripeCustomerMixin(object):
     """
@@ -66,18 +66,12 @@ class StripeCustomerMixin(object):
     
     """
     def _get_stripe_customer(self):
-        c = None
-        if _get_attr_value(self, 'stripe_customer_id'):
-            c = self.stripe.Customer.retrieve(_get_attr_value(self,
-                                        'stripe_customer_id'))
-        if not c and options.ZEBRA_AUTO_CREATE_STRIPE_CUSTOMERS:
-            c = self.stripe.Customer.create()
-            self.stripe_customer_id = c.id
-            self.save()
-
-        return c
+        customer = None
+        stripe_customer_id = _get_attr_value(self, 'stripe_customer_id')
+        if stripe_customer_id:
+            customer = self.stripe.Customer.retrieve(stripe_customer_id)
+        return customer
     stripe_customer = property(_get_stripe_customer)
-
 
 class StripeSubscriptionMixin(object):
     """
@@ -95,7 +89,6 @@ class StripeSubscriptionMixin(object):
         return subscription
     stripe_subscription = property(_get_stripe_subscription)
 
-
 class StripePlanMixin(object):
     """
     Provides a property `stripe_plan` that returns a stripe plan instance.
@@ -107,7 +100,6 @@ class StripePlanMixin(object):
         return stripe.Plan.retrieve(_get_attr_value(self, 'stripe_plan_id'))
     stripe_plan = property(_get_stripe_plan)
 
-
 class StripeInvoiceMixin(object):
     """
     Provides a property `stripe_invoice` that returns a stripe invoice instance.
@@ -116,10 +108,8 @@ class StripeInvoiceMixin(object):
     to provide the invoice id for the returned instance.
     """
     def _get_stripe_invoice(self):
-        return stripe.Invoice.retrieve(_get_attr_value(self,
-                                                        'stripe_invoice_id'))
+        return stripe.Invoice.retrieve(_get_attr_value(self, 'stripe_invoice_id'))
     stripe_invoice = property(_get_stripe_invoice)
-
 
 class StripeInvoiceItemMixin(object):
     """
@@ -130,10 +120,8 @@ class StripeInvoiceItemMixin(object):
     property) to provide the invoice id for the returned instance.
     """
     def _get_stripe_invoice_item(self):
-        return stripe.InvoiceItem.retrieve(_get_attr_value(self,
-                                                    'stripe_invoice_item_id'))
+        return stripe.InvoiceItem.retrieve(_get_attr_value(self, 'stripe_invoice_item_id'))
     stripe_invoice_item = property(_get_stripe_invoice_item)
-
 
 class StripeChargeMixin(object):
     """
@@ -145,17 +133,3 @@ class StripeChargeMixin(object):
     def _get_stripe_charge(self):
         return stripe.Charge.retrieve(_get_attr_value(self, 'stripe_charge_id'))
     stripe_charge = property(_get_stripe_charge)
-
-
-class ZebraMixin(StripeMixin, StripeCustomerMixin, StripeSubscriptionMixin,
-                StripePlanMixin, StripeInvoiceMixin, StripeInvoiceItemMixin,
-                StripeChargeMixin):
-    """
-    Provides all available Stripe mixins in one class.
-
-    `self.stripe`
-    `self.stripe_customer`
-    `self.stripe_subscription`
-    `self.stripe_plan`
-    """
-    pass

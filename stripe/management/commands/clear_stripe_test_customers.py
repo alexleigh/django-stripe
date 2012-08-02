@@ -1,11 +1,9 @@
 from django.core.management.base import BaseCommand
 
 import stripe
+from ... import settings
 
-from zebra.conf import options as zoptions
-
-
-CLEAR_CHUNK_SIZE = zoptions.ZEBRA_MAXIMUM_STRIPE_CUSTOMER_LIST_SIZE
+CLEAR_CHUNK_SIZE = settings.STRIPE_MAXIMUM_CUSTOMER_LIST_SIZE
 
 class Command(BaseCommand):
     help = "Clear all test mode customers from your stripe account."
@@ -13,7 +11,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         verbosity = int(options.get('verbosity', 1))
-        stripe.api_key = zoptions.STRIPE_SECRET
+        stripe.api_key = settings.STRIPE_SECRET_KEY
         customer_chunk = [0]
 
         if verbosity > 0:
