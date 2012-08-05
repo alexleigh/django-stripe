@@ -6,12 +6,12 @@ ROOT_DIR = os.path.dirname(__file__)
 SOURCE_DIR = os.path.join(ROOT_DIR)
 
 setup(
-    name = "django-zebra",
+    name = "django-stripe",
     description = "Library for Django and Stripe",
-    author = "Steven Skoczen",
-    author_email = "steven@agoodcloud.com",
-    url = "https://github.com/GoodCloud/django-zebra",
-    version = "0.4.3",
+    author = "Alex Leigh",
+    author_email = "leigh@alexleigh.me",
+    url = "https://github.com/atomatica/django-stripe",
+    version = "0.5",
     packages = find_packages(),
     zip_safe = False,
     include_package_data=True,

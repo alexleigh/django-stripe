@@ -8,8 +8,9 @@ Code came from:
 Steven Skoczen, GoodCloud http://www.agoodcloud.com
 Lee Trout, http://www.leetrout.com
 
-
 Pulls from:
 Minor cleanups - mixmastamyk: https://github.com/mixmastamyk
 Implementation of v2 webhooks from stripe - sivy: https://github.com/sivy
 Mixins fix - danawoodman: https://github.com/danawoodman
+
+Modifications by Alex Leigh
