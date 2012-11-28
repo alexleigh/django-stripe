@@ -1,4 +1,4 @@
 include README.md AUTHORS LICENSE
+recursive-include stripe/data *
 recursive-include stripe/static *
 recursive-include stripe/templates/stripe *
-recursive-include stripe/stripe/data *
